@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -16,14 +17,12 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.Checkable;
 import android.widget.ImageView;
-import android.widget.Switch;
 
 /**
  * Created by polyak1 on 31.03.2017.
  */
-public class IconSwitch extends ViewGroup implements Checkable {
+public class IconSwitch extends ViewGroup {
 
     private static final int DEFAULT_IMAGE_SIZE_DP = 18;
     private static final int MIN_ICON_SIZE_DP = 12;
@@ -36,7 +35,7 @@ public class IconSwitch extends ViewGroup implements Checkable {
     private ImageView rightIcon;
     private ThumbView thumb;
 
-    private IconSwitchBackground background;
+    private IconSwitchBg background;
 
     private ViewDragHelper thumbDragHelper;
     private VelocityTracker velocityTracker;
@@ -50,8 +49,6 @@ public class IconSwitch extends ViewGroup implements Checkable {
     private int thumbStartLeft, thumbEndLeft;
     private int thumbDiameter;
 
-    private boolean isLeftChecked;
-
     private int inactiveTintIconLeft, activeTintIconLeft;
     private int inactiveTintIconRight, activeTintIconRight;
     private int thumbColorLeft, thumbColorRight;
@@ -62,7 +59,9 @@ public class IconSwitch extends ViewGroup implements Checkable {
 
     private int translationX, translationY;
 
-    private Listener listener;
+    private Checked currentChecked;
+
+    private CheckedChangeListener listener;
 
     public IconSwitch(Context context) {
         super(context);
@@ -98,7 +97,7 @@ public class IconSwitch extends ViewGroup implements Checkable {
         addView(leftIcon = new ImageView(getContext()));
         addView(rightIcon = new ImageView(getContext()));
 
-        setBackground(background = new IconSwitchBackground());
+        setBackground(background = new IconSwitchBg());
 
         iconSize = dpToPx(DEFAULT_IMAGE_SIZE_DP);
 
@@ -120,10 +119,10 @@ public class IconSwitch extends ViewGroup implements Checkable {
             background.setColor(ta.getColor(R.styleable.IconSwitch_isw_background_color, colorDefBackground));
             thumbColorLeft = ta.getColor(R.styleable.IconSwitch_isw_thumb_color_left, colorDefThumb);
             thumbColorRight = ta.getColor(R.styleable.IconSwitch_isw_thumb_color_right, colorDefThumb);
-            isLeftChecked = ta.getInt(R.styleable.IconSwitch_isw_default_selection, 0) == 0;
+            currentChecked = Checked.values()[ta.getInt(R.styleable.IconSwitch_isw_default_selection, 0)];
             ta.recycle();
         } else {
-            isLeftChecked = true;
+            currentChecked = Checked.LEFT;
             inactiveTintIconLeft = colorDefInactive;
             activeTintIconLeft = colorDefActive;
             inactiveTintIconRight = colorDefInactive;
@@ -237,7 +236,7 @@ public class IconSwitch extends ViewGroup implements Checkable {
         }
         if (isClick) {
             toggleSwitch();
-            notifySelectionChanged();
+            notifyCheckedChanged();
         }
     }
 
@@ -249,8 +248,8 @@ public class IconSwitch extends ViewGroup implements Checkable {
     }
 
     private void toggleSwitch() {
-        isLeftChecked = !isLeftChecked;
-        int newLeft = isLeftChecked ? thumbStartLeft : thumbEndLeft;
+        currentChecked = currentChecked.toggle();
+        int newLeft = currentChecked == Checked.LEFT ? thumbStartLeft : thumbEndLeft;
         if (thumbDragHelper.smoothSlideViewTo(thumb, newLeft, thumb.getTop())) {
             ViewCompat.postInvalidateOnAnimation(this);
         }
@@ -291,37 +290,88 @@ public class IconSwitch extends ViewGroup implements Checkable {
         return direction > 0 ? thumbEndLeft : thumbStartLeft;
     }
 
-    public void setListener(Listener listener) {
+    public void setListener(CheckedChangeListener listener) {
         this.listener = listener;
     }
 
     private void ensureCorrectColors() {
-        leftIcon.setColorFilter(isLeftChecked ? activeTintIconLeft : inactiveTintIconLeft);
-        rightIcon.setColorFilter(isLeftChecked ? inactiveTintIconRight : activeTintIconRight);
-        thumb.setColor(isLeftChecked ? thumbColorLeft : thumbColorRight);
+        leftIcon.setColorFilter(isLeftChecked() ? activeTintIconLeft : inactiveTintIconLeft);
+        rightIcon.setColorFilter(isLeftChecked() ? inactiveTintIconRight : activeTintIconRight);
+        thumb.setColor(isLeftChecked() ? thumbColorLeft : thumbColorRight);
     }
 
-    private void notifySelectionChanged() {
+    private boolean isLeftChecked() {
+        return currentChecked == Checked.LEFT;
+    }
+
+    private void notifyCheckedChanged() {
         if (listener != null) {
-            listener.onCheckChanged(!isLeftChecked);
+            listener.onCheckChanged(currentChecked);
         }
     }
 
-    @Override
-    public void setChecked(boolean checked) {
-        if (isLeftChecked == checked) {
+    public void setChecked(Checked newChecked) {
+        if (currentChecked != newChecked) {
             toggleSwitch();
+            notifyCheckedChanged();
         }
     }
 
-    @Override
-    public boolean isChecked() {
-        return !isLeftChecked;
-    }
-
-    @Override
     public void toggle() {
         toggleSwitch();
+        notifyCheckedChanged();
+    }
+
+    public Checked getChecked() {
+        return currentChecked;
+    }
+
+    public void setThumbColorLeft(@ColorInt int thumbColorLeft) {
+        this.thumbColorLeft = thumbColorLeft;
+        ensureCorrectColors();
+    }
+
+    public void setThumbColorRight(@ColorInt int thumbColorRight) {
+        this.thumbColorRight = thumbColorRight;
+        ensureCorrectColors();
+    }
+
+    public void setInactiveTintIconLeft(@ColorInt int inactiveTintIconLeft) {
+        this.inactiveTintIconLeft = inactiveTintIconLeft;
+        ensureCorrectColors();
+    }
+
+    public void setInactiveTintIconRight(@ColorInt int inactiveTintIconRight) {
+        this.inactiveTintIconRight = inactiveTintIconRight;
+        ensureCorrectColors();
+    }
+
+    public void setActiveTintIconLeft(@ColorInt int activeTintIconLeft) {
+        this.activeTintIconLeft = activeTintIconLeft;
+        ensureCorrectColors();
+    }
+
+    public void setActiveTintIconRight(@ColorInt int activeTintIconRight) {
+        this.activeTintIconRight = activeTintIconRight;
+        ensureCorrectColors();
+    }
+
+    public void setBackgroundColor(@ColorInt int color) {
+        background.setColor(color);
+    }
+
+    public ImageView getLeftIcon() {
+        return leftIcon;
+    }
+
+    public ImageView getRightIcon() {
+        return rightIcon;
+    }
+
+    public void setIconSize(int dp) {
+        iconSize = dpToPx(dp);
+        calculateSwitchDimensions();
+        requestLayout();
     }
 
     private void applyPositionalTransform() {
@@ -358,10 +408,10 @@ public class IconSwitch extends ViewGroup implements Checkable {
             }
             boolean isFling = Math.abs(xvel) >= FLING_MIN_VELOCITY;
             int newLeft = isFling ? getLeftAfterFling(xvel) : getLeftToSettle();
-            boolean currentSelection = newLeft == thumbStartLeft;
-            if (currentSelection != isLeftChecked) {
-                isLeftChecked = currentSelection;
-                notifySelectionChanged();
+            Checked newChecked = Checked.fromCoordinate(newLeft, thumbStartLeft, thumbEndLeft);
+            if (newChecked != currentChecked) {
+                currentChecked = newChecked;
+                notifyCheckedChanged();
             }
             thumbDragHelper.settleCapturedViewAt(newLeft, thumb.getTop());
             invalidate();
@@ -408,7 +458,28 @@ public class IconSwitch extends ViewGroup implements Checkable {
         return color;
     }
 
-    public interface Listener {
-        void onCheckChanged(boolean checked);
+    public interface CheckedChangeListener {
+        void onCheckChanged(Checked current);
+    }
+
+    public enum Checked {
+        LEFT {
+            @Override
+            Checked toggle() {
+                return RIGHT;
+            }
+        },
+        RIGHT {
+            @Override
+            Checked toggle() {
+                return LEFT;
+            }
+        };
+
+        static Checked fromCoordinate(int current, int left, int right) {
+            return current == left ? LEFT : RIGHT;
+        }
+
+        abstract Checked toggle();
     }
 }

@@ -11,14 +11,14 @@ import android.support.annotation.NonNull;
 /**
  * Created by polyak01 on 31.03.2017.
  */
-class IconSwitchBackground extends Drawable {
+class IconSwitchBg extends Drawable {
 
     private RectF bounds;
     private Paint paint;
 
     private float radiusX, radiusY;
 
-    public IconSwitchBackground() {
+    public IconSwitchBg() {
         bounds = new RectF();
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     }

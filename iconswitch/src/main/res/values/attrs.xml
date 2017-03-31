@@ -3,6 +3,7 @@
     <declare-styleable name="IconSwitch">
         <attr name="isw_icon_left" format="reference" />
         <attr name="isw_icon_right" format="reference" />
+
         <attr name="isw_icon_size" format="dimension" />
 
         <attr name="isw_background_color" format="color" />
@@ -17,5 +18,6 @@
             <enum name="left" value="0" />
             <enum name="right" value="1" />
         </attr>
+
     </declare-styleable>
 </resources>
