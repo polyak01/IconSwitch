@@ -3,7 +3,7 @@
     <declare-styleable name="IconSwitch">
         <attr name="isw_icon_left" format="reference" />
         <attr name="isw_icon_right" format="reference" />
-        <attr name="isw_image_size" format="dimension" />
+        <attr name="isw_icon_size" format="dimension" />
 
         <attr name="isw_background_color" format="color" />
         <attr name="isw_thumb_color_left" format="color" />

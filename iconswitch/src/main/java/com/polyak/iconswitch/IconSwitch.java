@@ -25,6 +25,7 @@ import android.widget.ImageView;
 public class IconSwitch extends ViewGroup {
 
     private static final int DEFAULT_IMAGE_SIZE_DP = 18;
+    private static final int MIN_ICON_SIZE_DP = 12;
     private static final int UNITS_VELOCITY = 1000;
 
     private final double TOUCH_SLOP_SQUARE;
@@ -108,8 +109,7 @@ public class IconSwitch extends ViewGroup {
 
         if (attr != null) {
             TypedArray ta = getContext().obtainStyledAttributes(attr, R.styleable.IconSwitch);
-            int iconSide = ta.getDimensionPixelSize(R.styleable.IconSwitch_isw_image_size, iconSize);
-            iconSize = Math.max(iconSide, iconSize);
+            iconSize = ta.getDimensionPixelSize(R.styleable.IconSwitch_isw_icon_size, iconSize);
             leftIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_isw_icon_left));
             rightIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_isw_icon_right));
             inactiveTintIconLeft = ta.getColor(R.styleable.IconSwitch_isw_inactive_tint_icon_left, colorDefInactive);
@@ -138,6 +138,8 @@ public class IconSwitch extends ViewGroup {
     }
 
     private void calculateSwitchDimensions() {
+        iconSize = Math.max(iconSize, dpToPx(MIN_ICON_SIZE_DP));
+
         switchWidth = iconSize * 4;
         switchHeight = Math.round(iconSize * 2f);
 
@@ -155,9 +157,9 @@ public class IconSwitch extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int sidePadding = dpToPx(2);
+        int overshootPadding = Math.round(thumbDiameter * 0.1f);
 
-        int width = getSize(widthMeasureSpec, switchWidth + sidePadding * 2);
+        int width = getSize(widthMeasureSpec, switchWidth + overshootPadding * 2);
         int height = getSize(heightMeasureSpec, switchHeight);
 
         int thumbSpec = MeasureSpec.makeMeasureSpec(switchHeight, MeasureSpec.EXACTLY);
@@ -248,8 +250,9 @@ public class IconSwitch extends ViewGroup {
     private void toggleSwitch() {
         isLeftChecked = !isLeftChecked;
         int newLeft = isLeftChecked ? thumbStartLeft : thumbEndLeft;
-        thumbDragHelper.smoothSlideViewTo(thumb, newLeft, thumb.getTop());
-        invalidate();
+        if (thumbDragHelper.smoothSlideViewTo(thumb, newLeft, thumb.getTop())) {
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
     }
 
     @Override

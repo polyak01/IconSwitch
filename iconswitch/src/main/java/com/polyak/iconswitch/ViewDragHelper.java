@@ -104,7 +104,14 @@ public class ViewDragHelper {
         }
     }
 
-    private static final Interpolator sInterpolator = new OvershootInterpolator(1.5f);
+    private static final Interpolator sInterpolator = new OvershootInterpolator(1.5f) {
+        @Override
+        public float getInterpolation(float t) {
+            float res = super.getInterpolation(t);
+            Log.d("tag", "interpolator: " + res);
+            return res;
+        }
+    };
 
     private final Runnable mSetIdleRunnable = new Runnable() {
         @Override
@@ -274,7 +281,7 @@ public class ViewDragHelper {
         int xduration = computeAxisDuration(dx, xvel, mCallback.getViewHorizontalDragRange(child));
         int yduration = computeAxisDuration(dy, yvel, mCallback.getViewVerticalDragRange(child));
 
-        return (int) (xduration * xweight + yduration * yweight);
+        return (int) (xduration * xweight + yduration * yweight) + 200;
     }
 
     private int computeAxisDuration(int delta, int velocity, int motionRange) {
@@ -336,6 +343,7 @@ public class ViewDragHelper {
     public boolean continueSettling(boolean deferCallbacks) {
         if (mDragState == STATE_SETTLING) {
             boolean keepGoing = mScroller.computeScrollOffset();
+            Log.d("tag", "keepGoing: " + keepGoing);
             final int x = mScroller.getCurrX();
             final int y = mScroller.getCurrY();
             final int dx = x - mCapturedView.getLeft();
@@ -350,13 +358,6 @@ public class ViewDragHelper {
 
             if (dx != 0 || dy != 0) {
                 mCallback.onViewPositionChanged(mCapturedView, x, y, dx, dy);
-            }
-
-            if (keepGoing && x == mScroller.getFinalX() && y == mScroller.getFinalY()) {
-                // Close enough. The interpolator/scroller might think we're still moving
-                // but the user sure doesn't.
-                mScroller.abortAnimation();
-                keepGoing = false;
             }
 
             if (!keepGoing) {
