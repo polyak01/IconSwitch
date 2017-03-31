@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
@@ -23,6 +25,9 @@ import android.widget.ImageView;
  * Created by polyak1 on 31.03.2017.
  */
 public class IconSwitch extends ViewGroup {
+
+    private static final String EXTRA_SUPER = "extra_super";
+    private static final String EXTRA_CHECKED = "extra_is_checked";
 
     private static final int DEFAULT_IMAGE_SIZE_DP = 18;
     private static final int MIN_ICON_SIZE_DP = 12;
@@ -374,6 +379,23 @@ public class IconSwitch extends ViewGroup {
         requestLayout();
     }
 
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle state = new Bundle();
+        state.putParcelable(EXTRA_SUPER, super.onSaveInstanceState());
+        state.putInt(EXTRA_CHECKED, currentChecked.ordinal());
+        return state;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable parcel) {
+        Bundle state = (Bundle) parcel;
+        super.onRestoreInstanceState(state.getParcelable(EXTRA_SUPER));
+        currentChecked = Checked.values()[state.getInt(EXTRA_CHECKED, 0)];
+        thumbPosition = currentChecked == Checked.LEFT ? 0f : 1f;
+        ensureCorrectColors();
+    }
+
     private void applyPositionalTransform() {
         float clampedPosition = Math.max(0f, Math.min(thumbPosition, 1f)); //Ignore overshooting
         int leftColor = Evaluator.ofArgb(clampedPosition, activeTintIconLeft, inactiveTintIconLeft);
@@ -408,7 +430,7 @@ public class IconSwitch extends ViewGroup {
             }
             boolean isFling = Math.abs(xvel) >= FLING_MIN_VELOCITY;
             int newLeft = isFling ? getLeftAfterFling(xvel) : getLeftToSettle();
-            Checked newChecked = Checked.fromCoordinate(newLeft, thumbStartLeft, thumbEndLeft);
+            Checked newChecked = newLeft == thumbStartLeft ? Checked.LEFT : Checked.RIGHT;
             if (newChecked != currentChecked) {
                 currentChecked = newChecked;
                 notifyCheckedChanged();
@@ -475,10 +497,6 @@ public class IconSwitch extends ViewGroup {
                 return LEFT;
             }
         };
-
-        static Checked fromCoordinate(int current, int left, int right) {
-            return current == left ? LEFT : RIGHT;
-        }
 
         abstract Checked toggle();
     }
