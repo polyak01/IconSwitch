@@ -2,14 +2,15 @@ package com.polyak.iconswitch;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.GestureDetector;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -48,6 +49,10 @@ public class IconSwitch extends ViewGroup {
     private int thumbDiameter;
 
     private boolean isLeftChecked;
+
+    private int inactiveTintIconLeft, activeTintIconLeft;
+    private int inactiveTintIconRight, activeTintIconRight;
+    private int thumbColorLeft, thumbColorRight;
 
     private PointF downPoint;
     private boolean isClick;
@@ -92,17 +97,41 @@ public class IconSwitch extends ViewGroup {
 
         iconSize = dpToPx(DEFAULT_IMAGE_SIZE_DP);
 
+        int colorDefInactive = getAccentColor();
+        int colorDefActive = Color.WHITE;
+        int colorDefBackground = ContextCompat.getColor(getContext(), R.color.isw_defaultBg);
+        //noinspection UnnecessaryLocalVariable
+        int colorDefThumb = colorDefInactive;
+
         if (attr != null) {
             TypedArray ta = getContext().obtainStyledAttributes(attr, R.styleable.IconSwitch);
-            int iconSide = ta.getDimensionPixelSize(R.styleable.IconSwitch_image_size, iconSize);
-            iconSize = Math.max(iconSide, this.iconSize);
-
-            leftIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_icon_left));
-            rightIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_icon_right));
+            int iconSide = ta.getDimensionPixelSize(R.styleable.IconSwitch_isw_image_size, iconSize);
+            iconSize = Math.max(iconSide, iconSize);
+            leftIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_isw_icon_left));
+            rightIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_isw_icon_right));
+            inactiveTintIconLeft = ta.getColor(R.styleable.IconSwitch_isw_inactive_tint_icon_left, colorDefInactive);
+            activeTintIconLeft = ta.getColor(R.styleable.IconSwitch_isw_active_tint_icon_left, colorDefActive);
+            inactiveTintIconRight = ta.getColor(R.styleable.IconSwitch_isw_inactive_tint_icon_right, colorDefInactive);
+            activeTintIconRight = ta.getColor(R.styleable.IconSwitch_isw_active_tint_icon_right, colorDefActive);
+            background.setColor(ta.getColor(R.styleable.IconSwitch_isw_background_color, colorDefBackground));
+            thumbColorLeft = ta.getColor(R.styleable.IconSwitch_isw_thumb_color_left, colorDefThumb);
+            thumbColorRight = ta.getColor(R.styleable.IconSwitch_isw_thumb_color_right, colorDefThumb);
+            isLeftChecked = ta.getInt(R.styleable.IconSwitch_isw_default_selection, 0) == 0;
             ta.recycle();
+        } else {
+            isLeftChecked = true;
+            inactiveTintIconLeft = colorDefInactive;
+            activeTintIconLeft = colorDefActive;
+            inactiveTintIconRight = colorDefInactive;
+            activeTintIconRight = colorDefActive;
+            background.setColor(colorDefBackground);
+            thumbColorLeft = colorDefThumb;
+            thumbColorRight = colorDefThumb;
         }
 
         calculateSwitchDimensions();
+
+        ensureCorrectColors();
     }
 
     private void calculateSwitchDimensions() {
@@ -241,6 +270,12 @@ public class IconSwitch extends ViewGroup {
         this.listener = listener;
     }
 
+    private void ensureCorrectColors() {
+        leftIcon.setColorFilter(isLeftChecked ? activeTintIconLeft : inactiveTintIconLeft);
+        rightIcon.setColorFilter(isLeftChecked ? inactiveTintIconRight : activeTintIconRight);
+        thumb.setColor(isLeftChecked ? thumbColorLeft : thumbColorRight);
+    }
+
     private void notifySelectionChanged() {
         if (listener != null) {
             listener.onCheckChanged(!isLeftChecked);
@@ -296,6 +331,14 @@ public class IconSwitch extends ViewGroup {
 
     private int dpToPx(int dp) {
         return Math.round(getResources().getDisplayMetrics().density * dp);
+    }
+
+    private int getAccentColor() {
+        TypedValue typedValue = new TypedValue();
+        TypedArray a = getContext().obtainStyledAttributes(typedValue.data, new int[] { R.attr.colorAccent });
+        int color = a.getColor(0, 0);
+        a.recycle();
+        return color;
     }
 
     public interface Listener {

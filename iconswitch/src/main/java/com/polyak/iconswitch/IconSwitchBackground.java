@@ -20,18 +20,12 @@ public class IconSwitchBackground extends Drawable {
 
     private RectF bounds;
     private Paint paint;
-    private RectF rightSemi, leftSemi;
-    private Paint semiPaint;
 
     private float radiusX, radiusY;
 
     public IconSwitchBackground() {
         bounds = new RectF();
-        rightSemi = new RectF();
-        leftSemi = new RectF();
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        semiPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        semiPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
     }
 
     @SuppressWarnings("UnnecessaryLocalVariable")
@@ -52,6 +46,11 @@ public class IconSwitchBackground extends Drawable {
     @Override
     public void draw(@NonNull Canvas canvas) {
         canvas.drawRoundRect(bounds, radiusX, radiusY, paint);
+    }
+
+    public void setColor(int color) {
+        paint.setColor(color);
+        invalidateSelf();
     }
 
     @Override

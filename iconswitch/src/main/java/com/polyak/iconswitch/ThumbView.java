@@ -54,4 +54,13 @@ public class ThumbView extends View {
     protected void onDraw(Canvas canvas) {
         canvas.drawCircle(center.x, center.y, radius, paint);
     }
+
+    public void setColor(int color) {
+        paint.setColor(color);
+        invalidate();
+    }
+
+    public int getColor() {
+        return paint.getColor();
+    }
 }

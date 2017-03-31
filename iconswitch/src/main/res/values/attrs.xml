@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="IconSwitch">
-        <attr name="icon_left" format="reference" />
-        <attr name="icon_right" format="reference" />
-        <attr name="image_size" format="dimension" />
+        <attr name="isw_icon_left" format="reference" />
+        <attr name="isw_icon_right" format="reference" />
+        <attr name="isw_image_size" format="dimension" />
+
+        <attr name="isw_background_color" format="color" />
+        <attr name="isw_thumb_color_left" format="color" />
+        <attr name="isw_thumb_color_right" format="color" />
+        <attr name="isw_inactive_tint_icon_left" format="color" />
+        <attr name="isw_inactive_tint_icon_right" format="color" />
+        <attr name="isw_active_tint_icon_left" format="color" />
+        <attr name="isw_active_tint_icon_right" format="color" />
+
+        <attr name="isw_default_selection" format="enum">
+            <enum name="left" value="0" />
+            <enum name="right" value="1" />
+        </attr>
     </declare-styleable>
 </resources>

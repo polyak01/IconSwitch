@@ -14,8 +14,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        app:icon_left="@drawable/ic_format_list_bulleted_white_18dp"
-        app:icon_right="@drawable/ic_location_on_white_18dp"/>
+        app:isw_icon_left="@drawable/ic_format_list_bulleted_white_18dp"
+        app:isw_icon_right="@drawable/ic_location_on_white_18dp"/>
 
     <Switch
         android:id="@+id/s_witch"
