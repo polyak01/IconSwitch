@@ -10,6 +10,7 @@
     tools:context=".MainActivity">
 
     <com.polyak.iconswitch.IconSwitch
+        android:id="@+id/icon_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
@@ -17,6 +18,7 @@
         app:icon_right="@drawable/ic_location_on_white_18dp"/>
 
     <Switch
+        android:id="@+id/s_witch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 </LinearLayout>

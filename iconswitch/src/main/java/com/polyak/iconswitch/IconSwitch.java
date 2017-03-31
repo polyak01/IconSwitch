@@ -2,12 +2,16 @@ package com.polyak.iconswitch;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.PointF;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
@@ -19,8 +23,10 @@ import android.widget.ImageView;
 
 public class IconSwitch extends ViewGroup {
 
-    private final static int DEFAULT_IMAGE_SIZE_DP = 18;
+    private static final int DEFAULT_IMAGE_SIZE_DP = 18;
+    private static final int UNITS_VELOCITY = 1000;
 
+    private final double TOUCH_SLOP_SQUARE;
     private final int FLING_MIN_VELOCITY;
 
     private ImageView leftIcon;
@@ -30,16 +36,23 @@ public class IconSwitch extends ViewGroup {
     private IconSwitchBackground background;
 
     private ViewDragHelper thumbDragHelper;
+    private VelocityTracker velocityTracker;
 
     private float thumbPosition;
     private int thumbDragDistance;
 
     private int switchWidth, switchHeight;
-    private int iconOffset;
-    private int iconSize;
+    private int iconOffset, iconSize;
     private int iconTop, iconBottom;
     private int thumbStartLeft, thumbEndLeft;
     private int thumbDiameter;
+
+    private boolean isLeftChecked;
+
+    private PointF downPoint;
+    private boolean isClick;
+
+    private Listener listener;
 
     public IconSwitch(Context context) {
         super(context);
@@ -63,8 +76,11 @@ public class IconSwitch extends ViewGroup {
     }
 
     {
+        ViewConfiguration viewConf = ViewConfiguration.get(getContext());
+        FLING_MIN_VELOCITY = viewConf.getScaledMinimumFlingVelocity();
+        TOUCH_SLOP_SQUARE = Math.pow(viewConf.getScaledTouchSlop(), 2);
         thumbDragHelper = ViewDragHelper.create(this, new ThumbDragCallback());
-        FLING_MIN_VELOCITY = ViewConfiguration.get(getContext()).getScaledMinimumFlingVelocity();
+        downPoint = new PointF();
     }
 
     private void init(AttributeSet attr) {
@@ -78,8 +94,8 @@ public class IconSwitch extends ViewGroup {
 
         if (attr != null) {
             TypedArray ta = getContext().obtainStyledAttributes(attr, R.styleable.IconSwitch);
-            int iconSize = ta.getDimensionPixelSize(R.styleable.IconSwitch_image_size, this.iconSize);
-            this.iconSize = Math.max(iconSize, this.iconSize);
+            int iconSide = ta.getDimensionPixelSize(R.styleable.IconSwitch_image_size, iconSize);
+            iconSize = Math.max(iconSide, this.iconSize);
 
             leftIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_icon_left));
             rightIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_icon_right));
@@ -129,13 +145,70 @@ public class IconSwitch extends ViewGroup {
         int rightIconLeft = switchWidth - iconOffset - iconSize;
         rightIcon.layout(rightIconLeft, iconTop, rightIconLeft + iconSize, iconBottom);
 
-        thumb.layout(thumbStartLeft, 0, thumbStartLeft + thumbDiameter, switchHeight);
+        int thumbLeft = (int) (thumbStartLeft + thumbDragDistance * thumbPosition);
+        thumb.layout(thumbLeft, 0, thumbLeft + thumbDiameter, switchHeight);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                onDown(event);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                onMove(event);
+                break;
+            case MotionEvent.ACTION_UP:
+                onUp(event);
+                clearTouchInfo();
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                clearTouchInfo();
+                break;
+        }
         thumbDragHelper.processTouchEvent(event);
         return true;
+    }
+
+    private void onDown(MotionEvent e) {
+        velocityTracker = VelocityTracker.obtain();
+        velocityTracker.addMovement(e);
+        downPoint.set(e.getX(), e.getY());
+        isClick = true;
+    }
+
+    private void onMove(MotionEvent e) {
+        velocityTracker.addMovement(e);
+        double distance = Math.hypot(e.getX() - downPoint.x, e.getY() - downPoint.y);
+        if (isClick) {
+            isClick = distance < TOUCH_SLOP_SQUARE;
+        }
+    }
+
+    private void onUp(MotionEvent e) {
+        velocityTracker.addMovement(e);
+        velocityTracker.computeCurrentVelocity(UNITS_VELOCITY);
+        if (isClick) {
+            isClick = Math.abs(velocityTracker.getXVelocity()) < FLING_MIN_VELOCITY;
+        }
+        if (isClick) {
+            toggleSwitch();
+            notifySelectionChanged();
+        }
+    }
+
+    private void clearTouchInfo() {
+        if (velocityTracker != null) {
+            velocityTracker.recycle();
+            velocityTracker = null;
+        }
+    }
+
+    private void toggleSwitch() {
+        isLeftChecked = !isLeftChecked;
+        int newLeft = isLeftChecked ? thumbStartLeft : thumbEndLeft;
+        thumbDragHelper.smoothSlideViewTo(thumb, newLeft, thumb.getTop());
+        invalidate();
     }
 
     @Override
@@ -160,24 +233,45 @@ public class IconSwitch extends ViewGroup {
         }
     }
 
+    private int getLeftAfterFling(float direction) {
+        return direction > 0 ? thumbEndLeft : thumbStartLeft;
+    }
+
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
+
+    private void notifySelectionChanged() {
+        if (listener != null) {
+            listener.onCheckChanged(!isLeftChecked);
+        }
+    }
+
     private class ThumbDragCallback extends ViewDragHelper.Callback {
 
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
-            return child == thumb;
+            if (child != thumb) {
+                thumbDragHelper.captureChildView(thumb, pointerId);
+                return false;
+            }
+            return true;
         }
 
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
-            int newLeft = Math.abs(xvel) >= FLING_MIN_VELOCITY ?
-                    getLeftAfterFling(xvel) :
-                    getLeftToSettle();
+            if (isClick) {
+                return;
+            }
+            boolean isFling = Math.abs(xvel) >= FLING_MIN_VELOCITY;
+            int newLeft = isFling ? getLeftAfterFling(xvel) : getLeftToSettle();
+            boolean currentSelection = newLeft == thumbStartLeft;
+            if (currentSelection != isLeftChecked) {
+                isLeftChecked = currentSelection;
+                notifySelectionChanged();
+            }
             thumbDragHelper.settleCapturedViewAt(newLeft, thumb.getTop());
             invalidate();
-        }
-
-        private int getLeftAfterFling(float direction) {
-            return direction > 0 ? thumbEndLeft : thumbStartLeft;
         }
 
         private int getLeftToSettle() {
@@ -191,7 +285,7 @@ public class IconSwitch extends ViewGroup {
 
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
-            return Math.max(thumbStartLeft,Math.min(left, thumbEndLeft));
+            return Math.max(thumbStartLeft, Math.min(left, thumbEndLeft));
         }
 
         @Override
@@ -202,5 +296,9 @@ public class IconSwitch extends ViewGroup {
 
     private int dpToPx(int dp) {
         return Math.round(getResources().getDisplayMetrics().density * dp);
+    }
+
+    public interface Listener {
+        void onCheckChanged(boolean checked);
     }
 }
