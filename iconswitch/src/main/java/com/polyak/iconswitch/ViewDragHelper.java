@@ -103,14 +103,7 @@ class ViewDragHelper {
         }
     }
 
-    private static final Interpolator sInterpolator = new OvershootInterpolator(1.5f) {
-        @Override
-        public float getInterpolation(float t) {
-            float res = super.getInterpolation(t);
-            Log.d("tag", "interpolator: " + res);
-            return res;
-        }
-    };
+    private static final Interpolator sInterpolator = new OvershootInterpolator(1.5f);
 
     private final Runnable mSetIdleRunnable = new Runnable() {
         @Override
