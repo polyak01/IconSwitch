@@ -58,6 +58,8 @@ public class IconSwitch extends ViewGroup {
     private boolean isClick;
     private int dragState;
 
+    private int translationX, translationY;
+
     private Listener listener;
 
     public IconSwitch(Context context) {
@@ -153,7 +155,9 @@ public class IconSwitch extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width = getSize(widthMeasureSpec, switchWidth);
+        int sidePadding = dpToPx(2);
+
+        int width = getSize(widthMeasureSpec, switchWidth + sidePadding * 2);
         int height = getSize(heightMeasureSpec, switchHeight);
 
         int thumbSpec = MeasureSpec.makeMeasureSpec(switchHeight, MeasureSpec.EXACTLY);
@@ -164,6 +168,9 @@ public class IconSwitch extends ViewGroup {
         rightIcon.measure(iconSpec, iconSpec);
 
         background.init(iconSize, width, height);
+
+        translationX = (width / 2) - (switchWidth / 2);
+        translationY = (height / 2) - (switchHeight / 2);
 
         setMeasuredDimension(width, height);
     }
@@ -180,7 +187,9 @@ public class IconSwitch extends ViewGroup {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(MotionEvent e) {
+        MotionEvent event = MotionEvent.obtain(e);
+        event.setLocation(e.getX() - translationX, e.getY() - translationY);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 onDown(event);
@@ -197,6 +206,7 @@ public class IconSwitch extends ViewGroup {
                 break;
         }
         thumbDragHelper.processTouchEvent(event);
+        event.recycle();
         return true;
     }
 
@@ -205,6 +215,7 @@ public class IconSwitch extends ViewGroup {
         velocityTracker.addMovement(e);
         downPoint.set(e.getX(), e.getY());
         isClick = true;
+        thumbDragHelper.captureChildView(thumb, e.getPointerId(0));
     }
 
     private void onMove(MotionEvent e) {
@@ -251,6 +262,7 @@ public class IconSwitch extends ViewGroup {
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         canvas.save();
+        canvas.translate(translationX, translationY);
         boolean result = super.drawChild(canvas, child, drawingTime);
         canvas.restore();
         return result;
@@ -369,7 +381,7 @@ public class IconSwitch extends ViewGroup {
 
     private int getAccentColor() {
         TypedValue typedValue = new TypedValue();
-        TypedArray a = getContext().obtainStyledAttributes(typedValue.data, new int[] { R.attr.colorAccent });
+        TypedArray a = getContext().obtainStyledAttributes(typedValue.data, new int[]{R.attr.colorAccent});
         int color = a.getColor(0, 0);
         a.recycle();
         return color;

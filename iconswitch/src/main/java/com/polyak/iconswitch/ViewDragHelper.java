@@ -104,7 +104,7 @@ public class ViewDragHelper {
         }
     }
 
-    private static final Interpolator sInterpolator = new OvershootInterpolator();
+    private static final Interpolator sInterpolator = new OvershootInterpolator(1.5f);
 
     private final Runnable mSetIdleRunnable = new Runnable() {
         @Override
