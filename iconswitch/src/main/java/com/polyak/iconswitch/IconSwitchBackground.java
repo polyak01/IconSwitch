@@ -1,21 +1,16 @@
 package com.polyak.iconswitch;
 
-import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 
 /**
- * Created by yarolegovich on 31.03.2017.
+ * Created by polyak01 on 31.03.2017.
  */
-
 public class IconSwitchBackground extends Drawable {
 
     private RectF bounds;

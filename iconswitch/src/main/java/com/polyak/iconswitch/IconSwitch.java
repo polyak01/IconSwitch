@@ -2,13 +2,13 @@ package com.polyak.iconswitch;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -56,6 +56,7 @@ public class IconSwitch extends ViewGroup {
 
     private PointF downPoint;
     private boolean isClick;
+    private int dragState;
 
     private Listener listener;
 
@@ -247,6 +248,14 @@ public class IconSwitch extends ViewGroup {
         }
     }
 
+    @Override
+    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+        canvas.save();
+        boolean result = super.drawChild(canvas, child, drawingTime);
+        canvas.restore();
+        return result;
+    }
+
     private int getSize(int measureSpec, int fallbackSize) {
         int mode = MeasureSpec.getMode(measureSpec);
         int size = MeasureSpec.getSize(measureSpec);
@@ -280,6 +289,22 @@ public class IconSwitch extends ViewGroup {
         if (listener != null) {
             listener.onCheckChanged(!isLeftChecked);
         }
+    }
+
+    private void applyPositionalTransform() {
+        float clampedPosition = Math.max(0f, Math.min(thumbPosition, 1f)); //Ignore overshooting
+        int leftColor = Evaluator.ofArgb(clampedPosition, activeTintIconLeft, inactiveTintIconLeft);
+        leftIcon.setColorFilter(leftColor);
+        int rightColor = Evaluator.ofArgb(clampedPosition, inactiveTintIconRight, activeTintIconRight);
+        rightIcon.setColorFilter(rightColor);
+        int thumbColor = Evaluator.ofArgb(clampedPosition, thumbColorLeft, thumbColorRight);
+        thumb.setColor(thumbColor);
+        float closenessToCenter = 1f - Math.abs(clampedPosition - 0.5f) / 0.5f;
+        float iconScale = 1f - (closenessToCenter * 0.3f);
+        leftIcon.setScaleX(iconScale);
+        leftIcon.setScaleY(iconScale);
+        rightIcon.setScaleX(iconScale);
+        rightIcon.setScaleY(iconScale);
     }
 
     private class ThumbDragCallback extends ViewDragHelper.Callback {
@@ -316,11 +341,20 @@ public class IconSwitch extends ViewGroup {
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
             thumbPosition = ((float) (left - thumbStartLeft)) / thumbDragDistance;
+            applyPositionalTransform();
         }
 
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
-            return Math.max(thumbStartLeft, Math.min(left, thumbEndLeft));
+            if (dragState == ViewDragHelper.STATE_DRAGGING) {
+                return Math.max(thumbStartLeft, Math.min(left, thumbEndLeft));
+            }
+            return left;
+        }
+
+        @Override
+        public void onViewDragStateChanged(int state) {
+            dragState = state;
         }
 
         @Override
