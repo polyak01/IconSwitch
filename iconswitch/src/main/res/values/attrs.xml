@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="IconSwitch">
+        <attr name="icon_left" format="reference" />
+        <attr name="icon_right" format="reference" />
+        <attr name="image_size" format="dimension" />
+    </declare-styleable>
+</resources>

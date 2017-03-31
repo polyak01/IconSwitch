@@ -8,6 +8,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.polyak.iconswitch.R.layout.activity_main);
+        setContentView(R.layout.activity_main);
     }
 }
