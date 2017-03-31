@@ -5,8 +5,7 @@ import android.animation.ArgbEvaluator;
 /**
  * Created by yarolegovich on 31.03.2017.
  */
-
-public class Evaluator {
+class Evaluator {
 
 
     public static int ofArgb(float fraction, int startColor, int endColor) {

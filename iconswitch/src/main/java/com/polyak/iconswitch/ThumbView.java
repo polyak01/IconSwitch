@@ -13,8 +13,7 @@ import android.view.View;
 /**
  * Created by yarolegovich on 31.03.2017.
  */
-
-public class ThumbView extends View {
+class ThumbView extends View {
 
     private PointF center;
     private float radius;

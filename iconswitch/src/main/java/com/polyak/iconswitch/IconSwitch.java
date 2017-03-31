@@ -16,13 +16,14 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.widget.Checkable;
 import android.widget.ImageView;
+import android.widget.Switch;
 
 /**
  * Created by polyak1 on 31.03.2017.
  */
-
-public class IconSwitch extends ViewGroup {
+public class IconSwitch extends ViewGroup implements Checkable {
 
     private static final int DEFAULT_IMAGE_SIZE_DP = 18;
     private static final int MIN_ICON_SIZE_DP = 12;
@@ -304,6 +305,23 @@ public class IconSwitch extends ViewGroup {
         if (listener != null) {
             listener.onCheckChanged(!isLeftChecked);
         }
+    }
+
+    @Override
+    public void setChecked(boolean checked) {
+        if (isLeftChecked == checked) {
+            toggleSwitch();
+        }
+    }
+
+    @Override
+    public boolean isChecked() {
+        return !isLeftChecked;
+    }
+
+    @Override
+    public void toggle() {
+        toggleSwitch();
     }
 
     private void applyPositionalTransform() {

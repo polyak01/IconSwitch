@@ -19,8 +19,7 @@ import java.util.Arrays;
 /**
  * Created by polyak01 on 31.03.2017.
  */
-
-public class ViewDragHelper {
+class ViewDragHelper {
 
     private static final String TAG = "ViewDragHelper";
 

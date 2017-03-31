@@ -11,7 +11,7 @@ import android.support.annotation.NonNull;
 /**
  * Created by polyak01 on 31.03.2017.
  */
-public class IconSwitchBackground extends Drawable {
+class IconSwitchBackground extends Drawable {
 
     private RectF bounds;
     private Paint paint;
