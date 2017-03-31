@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -18,6 +20,8 @@ import android.widget.ImageView;
 public class IconSwitch extends ViewGroup {
 
     private final static int DEFAULT_IMAGE_SIZE_DP = 18;
+
+    private final int FLING_MIN_VELOCITY;
 
     private ImageView leftIcon;
     private ImageView rightIcon;
@@ -34,8 +38,8 @@ public class IconSwitch extends ViewGroup {
     private int iconOffset;
     private int iconSize;
     private int iconTop, iconBottom;
-    private int thumbStartCenterX, thumbEndCenterX;
-    private int thumbRadius;
+    private int thumbStartLeft, thumbEndLeft;
+    private int thumbDiameter;
 
     public IconSwitch(Context context) {
         super(context);
@@ -60,6 +64,7 @@ public class IconSwitch extends ViewGroup {
 
     {
         thumbDragHelper = ViewDragHelper.create(this, new ThumbDragCallback());
+        FLING_MIN_VELOCITY = ViewConfiguration.get(getContext()).getScaledMinimumFlingVelocity();
     }
 
     private void init(AttributeSet attr) {
@@ -91,12 +96,13 @@ public class IconSwitch extends ViewGroup {
         iconOffset = Math.round(iconSize * 0.6f);
         iconTop = (switchHeight - iconSize) / 2;
         iconBottom = iconTop + iconSize;
-        thumbRadius = switchHeight / 2;
+        thumbDiameter = switchHeight;
 
-        int iconHalfHeight = iconSize / 2;
-        thumbStartCenterX = iconOffset + iconHalfHeight;
-        thumbEndCenterX = switchWidth - iconOffset - iconHalfHeight;
-        thumbDragDistance = thumbEndCenterX - thumbStartCenterX;
+        int thumbRadius = thumbDiameter / 2;
+        int iconHalfSize = iconSize / 2;
+        thumbStartLeft = iconOffset + iconHalfSize - thumbRadius;
+        thumbEndLeft = switchWidth - iconOffset - iconHalfSize - thumbRadius;
+        thumbDragDistance = thumbEndLeft - thumbStartLeft;
     }
 
     @Override
@@ -123,15 +129,20 @@ public class IconSwitch extends ViewGroup {
         int rightIconLeft = switchWidth - iconOffset - iconSize;
         rightIcon.layout(rightIconLeft, iconTop, rightIconLeft + iconSize, iconBottom);
 
-        thumb.layout(
-                thumbStartCenterX - thumbRadius, 0,
-                thumbStartCenterX + thumbRadius, switchHeight);
+        thumb.layout(thumbStartLeft, 0, thumbStartLeft + thumbDiameter, switchHeight);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         thumbDragHelper.processTouchEvent(event);
         return true;
+    }
+
+    @Override
+    public void computeScroll() {
+        if (thumbDragHelper.continueSettling(true)) {
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
     }
 
     private int getSize(int measureSpec, int fallbackSize) {
@@ -158,19 +169,29 @@ public class IconSwitch extends ViewGroup {
 
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
-            super.onViewReleased(releasedChild, xvel, yvel);
+            int newLeft = Math.abs(xvel) >= FLING_MIN_VELOCITY ?
+                    getLeftAfterFling(xvel) :
+                    getLeftToSettle();
+            thumbDragHelper.settleCapturedViewAt(newLeft, thumb.getTop());
+            invalidate();
+        }
+
+        private int getLeftAfterFling(float direction) {
+            return direction > 0 ? thumbEndLeft : thumbStartLeft;
+        }
+
+        private int getLeftToSettle() {
+            return thumbPosition > 0.5f ? thumbEndLeft : thumbStartLeft;
         }
 
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
-            super.onViewPositionChanged(changedView, left, top, dx, dy);
+            thumbPosition = ((float) (left - thumbStartLeft)) / thumbDragDistance;
         }
 
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
-            return Math.max(
-                    Math.min(left, thumbEndCenterX - thumbRadius),
-                    thumbStartCenterX - thumbRadius);
+            return Math.max(thumbStartLeft,Math.min(left, thumbEndLeft));
         }
 
         @Override
