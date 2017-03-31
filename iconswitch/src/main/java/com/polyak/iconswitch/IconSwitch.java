@@ -6,7 +6,7 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -19,20 +19,23 @@ public class IconSwitch extends ViewGroup {
 
     private final static int DEFAULT_IMAGE_SIZE_DP = 18;
 
-    private int switchWidth;
-    private int switchHeight;
-
     private ImageView leftIcon;
     private ImageView rightIcon;
     private ThumbView thumb;
-
-    private int imageSize;
 
     private IconSwitchBackground background;
 
     private ViewDragHelper thumbDragHelper;
 
     private float thumbPosition;
+    private int thumbDragDistance;
+
+    private int switchWidth, switchHeight;
+    private int iconOffset;
+    private int iconSize;
+    private int iconTop, iconBottom;
+    private int thumbStartCenterX, thumbEndCenterX;
+    private int thumbRadius;
 
     public IconSwitch(Context context) {
         super(context);
@@ -66,12 +69,12 @@ public class IconSwitch extends ViewGroup {
 
         setBackground(background = new IconSwitchBackground());
 
-        imageSize = dpToPx(DEFAULT_IMAGE_SIZE_DP);
+        iconSize = dpToPx(DEFAULT_IMAGE_SIZE_DP);
 
         if (attr != null) {
             TypedArray ta = getContext().obtainStyledAttributes(attr, R.styleable.IconSwitch);
-            int iconSize = ta.getDimensionPixelSize(R.styleable.IconSwitch_image_size, imageSize);
-            imageSize = Math.max(iconSize, imageSize);
+            int iconSize = ta.getDimensionPixelSize(R.styleable.IconSwitch_image_size, this.iconSize);
+            this.iconSize = Math.max(iconSize, this.iconSize);
 
             leftIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_icon_left));
             rightIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_icon_right));
@@ -82,13 +85,18 @@ public class IconSwitch extends ViewGroup {
     }
 
     private void calculateSwitchDimensions() {
-        switchWidth = imageSize * 4;
-        switchHeight = Math.round(imageSize * 2f);
-    }
+        switchWidth = iconSize * 4;
+        switchHeight = Math.round(iconSize * 2f);
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+        iconOffset = Math.round(iconSize * 0.6f);
+        iconTop = (switchHeight - iconSize) / 2;
+        iconBottom = iconTop + iconSize;
+        thumbRadius = switchHeight / 2;
+
+        int iconHalfHeight = iconSize / 2;
+        thumbStartCenterX = iconOffset + iconHalfHeight;
+        thumbEndCenterX = switchWidth - iconOffset - iconHalfHeight;
+        thumbDragDistance = thumbEndCenterX - thumbStartCenterX;
     }
 
     @Override
@@ -96,34 +104,34 @@ public class IconSwitch extends ViewGroup {
         int width = getSize(widthMeasureSpec, switchWidth);
         int height = getSize(heightMeasureSpec, switchHeight);
 
-        Log.d("tag", "width: " + width + ", switchWidth: " + switchWidth);
-
         int thumbSpec = MeasureSpec.makeMeasureSpec(switchHeight, MeasureSpec.EXACTLY);
         thumb.measure(thumbSpec, thumbSpec);
 
-        int iconSpec = MeasureSpec.makeMeasureSpec(imageSize, MeasureSpec.EXACTLY);
+        int iconSpec = MeasureSpec.makeMeasureSpec(iconSize, MeasureSpec.EXACTLY);
         leftIcon.measure(iconSpec, iconSpec);
         rightIcon.measure(iconSpec, iconSpec);
+
+        background.init(iconSize, width, height);
 
         setMeasuredDimension(width, height);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        final int iconOffset = Math.round(imageSize * 0.6f);
-        final int iconTop = (switchHeight - imageSize) / 2;
-        final int iconBottom = iconTop + imageSize;
+        leftIcon.layout(iconOffset, iconTop, iconOffset + iconSize, iconBottom);
 
-        leftIcon.layout(iconOffset, iconTop, iconOffset + imageSize, iconBottom);
+        int rightIconLeft = switchWidth - iconOffset - iconSize;
+        rightIcon.layout(rightIconLeft, iconTop, rightIconLeft + iconSize, iconBottom);
 
-        int rightIconLeft = switchWidth - iconOffset - imageSize;
-        rightIcon.layout(rightIconLeft, iconTop, rightIconLeft + imageSize, iconBottom);
+        thumb.layout(
+                thumbStartCenterX - thumbRadius, 0,
+                thumbStartCenterX + thumbRadius, switchHeight);
+    }
 
-        final int leftIconCenterX = iconOffset + (imageSize / 2);
-        final int thumbRadius = switchHeight / 2;
-        thumb.layout(leftIconCenterX - thumbRadius, 0, leftIconCenterX + thumbRadius, switchHeight);
-
-        background.init(imageSize, r - l, b - t);
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        thumbDragHelper.processTouchEvent(event);
+        return true;
     }
 
     private int getSize(int measureSpec, int fallbackSize) {
@@ -160,12 +168,14 @@ public class IconSwitch extends ViewGroup {
 
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
-            return super.clampViewPositionHorizontal(child, left, dx);
+            return Math.max(
+                    Math.min(left, thumbEndCenterX - thumbRadius),
+                    thumbStartCenterX - thumbRadius);
         }
 
         @Override
         public int getViewHorizontalDragRange(View child) {
-            return super.getViewHorizontalDragRange(child);
+            return child == thumb ? thumbDragDistance : 0;
         }
     }
 
