@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
@@ -136,6 +137,8 @@ public class IconSwitch extends ViewGroup {
             thumbColorLeft = colorDefThumb;
             thumbColorRight = colorDefThumb;
         }
+
+        thumbPosition = currentChecked == Checked.LEFT ? 0f : 1f;
 
         calculateSwitchDimensions();
 
@@ -295,7 +298,7 @@ public class IconSwitch extends ViewGroup {
         return direction > 0 ? thumbEndLeft : thumbStartLeft;
     }
 
-    public void setListener(CheckedChangeListener listener) {
+    public void setCheckedChangeListener(CheckedChangeListener listener) {
         this.listener = listener;
     }
 
@@ -468,6 +471,14 @@ public class IconSwitch extends ViewGroup {
         }
     }
 
+    public void getThumbCenter(Point point) {
+        final int thumbRadius = thumbDiameter / 2;
+        final int thumbLeft = (int) (thumbStartLeft + thumbDragDistance * thumbPosition);
+        final int thumbCenterX = thumbLeft + translationX;
+        final int thumbCenterY = thumbRadius + translationY;
+        point.set(thumbCenterX, thumbCenterY);
+    }
+
     private int dpToPx(int dp) {
         return Math.round(getResources().getDisplayMetrics().density * dp);
     }
@@ -487,17 +498,17 @@ public class IconSwitch extends ViewGroup {
     public enum Checked {
         LEFT {
             @Override
-            Checked toggle() {
+            public Checked toggle() {
                 return RIGHT;
             }
         },
         RIGHT {
             @Override
-            Checked toggle() {
+            public Checked toggle() {
                 return LEFT;
             }
         };
 
-        abstract Checked toggle();
+        public abstract Checked toggle();
     }
 }

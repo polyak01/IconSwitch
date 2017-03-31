@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">IconSwitch</string>
+    <string name="app_name">Icon Switch Sample</string>
+
+    <string name="msg_no_browser">No app found to open the url</string>
+
+    <string name="credit_summary_prokhoda">Inspiration</string>
+    <string name="credit_title_prokhoda">Alex Prokhoda</string>
+    <string name="credit_title_yarolegovich">Yaroslav Shevchuk</string>
+    <string name="credit_summary_yarolegovich">Contributor</string>
+    <string name="credit_title_polyak">Yaroslav Polyakov</string>
+    <string name="credit_summary_polyak">Developer</string>
 </resources>
