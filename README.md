@@ -1,0 +1,84 @@
+# IconSwitch
+
+The library is a custom Switch widget inspired by this [dribbble shot](https://dribbble.com/shots/2978168-Map-to-list-view). 
+
+![GifSample](art/sample.gif)
+
+## Gradle 
+Add this into your dependencies block.
+```
+compile 'add_later'
+```
+## Sample
+Please see the [sample app](sample/src/main) for a library usage example.
+
+## Wiki
+#### Usage:
+Simply add an IconSwitch to your view hieararchy. Either programatically or using xml:
+```xml
+<com.polyak.iconswitch.IconSwitch
+  android:id="@+id/icon_switch"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  app:isw_icon_left="@drawable/ic_format_list_bulleted_white_18dp"
+  app:isw_icon_right="@drawable/ic_location_on_white_18dp" />
+```
+
+### API
+#### General
+Size of the widget is controlled by the attribute:
+```xml
+<com.polyak.iconswitch.IconSwitch
+  android:isw_icon_size="@dimen/your_size" />
+```
+Default selection can be set using:
+```xml
+<com.polyak.iconswitch.IconSwitch
+  android:isw_default_selection="left|right" />
+```
+To control the current state or get information about it, use:
+```java
+iconSwitch.setChecked();
+iconSwitch.getChecked();
+iconSwitch.toggle();
+```
+
+#### Color
+To customize colors of the widget, you can use the following self-explanatory attributes:
+```xml
+<com.polyak.iconswitch.IconSwitch
+  app:isw_background_color="#fff"
+  app:isw_thumb_color_left="#fff"
+  app:isw_thumb_color_right="#fff"
+  app:isw_inactive_tint_icon_left="#fff"
+  app:isw_inactive_tint_icon_right="#fff"
+  app:isw_active_tint_icon_left="#fff"
+  app:isw_active_tint_icon_right="#fff" />
+```
+or setter-methods:
+```java
+iconSwitch.setBackgroundColor(color);
+iconSwitch.setThumbColorLeft(color);
+iconSwitch.setThumbColorRight(color);
+iconSwitch.setActiveTintIconLeft(color);
+iconSwitch.setInactiveTintIconLeft(color);
+iconSwitch.setActiveTintIconRight(color);
+iconSwitch.setInactiveTintIconRight(color);
+```
+
+#### Callback
+To listen for the check changed events use:
+```java
+iconSwitch.setCheckedChangeListener(listener);
+
+public interface CheckedChangeListener {
+  void onCheckChanged(Checked current);
+}
+
+enum Checked { LEFT, RIGHT }
+```
+
+## License
+```
+License goes here
+```
