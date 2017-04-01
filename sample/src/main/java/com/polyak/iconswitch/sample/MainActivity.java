@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private int[] toolbarColors;
     private int[] statusBarColors;
     private ValueAnimator statusBarAnimator;
-    private ValueAnimator toolbarAnimator;
     private Interpolator contentInInterpolator;
     private Interpolator contentOutInterpolator;
     private Point revealCenter;
@@ -110,10 +109,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onAnimationUpdate(ValueAnimator animator) {
-        int color = (Integer) animator.getAnimatedValue();
-        if (animator == toolbarAnimator) {
-            toolbar.setBackgroundColor(color);
-        } else if (animator == statusBarAnimator) {
+        if (animator == statusBarAnimator) {
+            int color = (Integer) animator.getAnimatedValue();
             window.setStatusBarColor(color);
         }
     }
@@ -180,9 +177,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void initAnimationRelatedFields() {
         revealCenter = new Point();
-        toolbarAnimator = createArgbAnimator(
-                toolbarColors[Checked.LEFT.ordinal()],
-                toolbarColors[Checked.RIGHT.ordinal()]);
         statusBarAnimator = createArgbAnimator(
                 statusBarColors[Checked.LEFT.ordinal()],
                 statusBarColors[Checked.RIGHT.ordinal()]);
