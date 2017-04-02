@@ -20,7 +20,7 @@ task clean(type: Delete) {
 
 ext {
     userOrg = 'polyak'
-    groupId = 'com.polyak'
+    groupId = 'polyak'
     uploadName = 'IconSwitch'
     description = 'Custom switch-like widget.'
     publishVersion = '1.0.0'
