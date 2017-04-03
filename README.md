@@ -2,7 +2,7 @@
 
 The library is a custom Switch widget inspired by this [dribbble shot](https://dribbble.com/shots/2978168-Map-to-list-view). 
 
-![GifSample](art/sample.gif)
+![GifSample](https://github.com/polyak01/IconSwitch/blob/master/data/3J8gYHy.gif)
 
 ## Gradle 
 Add this into your dependencies block.
