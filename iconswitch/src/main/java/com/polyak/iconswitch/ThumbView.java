@@ -12,6 +12,7 @@ import android.view.View;
 
 /**
  * Created by yarolegovich on 31.03.2017.
+ * https://github.com/yarolegovich
  */
 class ThumbView extends View {
 

@@ -18,6 +18,7 @@ import java.util.Arrays;
 
 /**
  * Created by polyak01 on 31.03.2017.
+ * https://github.com/polyak01
  */
 class ViewDragHelper {
 

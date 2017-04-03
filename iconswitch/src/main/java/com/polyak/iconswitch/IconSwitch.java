@@ -23,7 +23,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 /**
- * Created by polyak1 on 31.03.2017.
+ * Created by polyak01 on 31.03.2017.
+ * https://github.com/polyak01
  */
 public class IconSwitch extends ViewGroup {
 

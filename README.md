@@ -7,7 +7,7 @@ The library is a custom Switch widget inspired by this [dribbble shot](https://d
 ## Gradle 
 Add this into your dependencies block.
 ```
-compile 'polyak:icon-switch:1.0.0'
+compile 'com.polyak:icon-switch:1.0.0'
 ```
 ## Sample
 Please see the [sample app](sample/src/main) for a library usage example.

@@ -1,9 +1,8 @@
 package com.polyak.iconswitch;
 
-import android.animation.ArgbEvaluator;
-
 /**
  * Created by yarolegovich on 31.03.2017.
+ * https://github.com/yarolegovich
  */
 class Evaluator {
 

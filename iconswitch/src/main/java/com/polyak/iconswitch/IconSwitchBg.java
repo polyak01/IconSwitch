@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 
 /**
  * Created by polyak01 on 31.03.2017.
+ * https://github.com/polyak01
  */
 class IconSwitchBg extends Drawable {
 
