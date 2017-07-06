@@ -13,6 +13,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -117,9 +118,8 @@ public class IconSwitch extends ViewGroup {
         if (attr != null) {
             TypedArray ta = getContext().obtainStyledAttributes(attr, R.styleable.IconSwitch);
             iconSize = ta.getDimensionPixelSize(R.styleable.IconSwitch_isw_icon_size, iconSize);
-            leftIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_isw_icon_left));
-            rightIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_isw_icon_right));
             inactiveTintIconLeft = ta.getColor(R.styleable.IconSwitch_isw_inactive_tint_icon_left, colorDefInactive);
+
             activeTintIconLeft = ta.getColor(R.styleable.IconSwitch_isw_active_tint_icon_left, colorDefActive);
             inactiveTintIconRight = ta.getColor(R.styleable.IconSwitch_isw_inactive_tint_icon_right, colorDefInactive);
             activeTintIconRight = ta.getColor(R.styleable.IconSwitch_isw_active_tint_icon_right, colorDefActive);
@@ -127,6 +127,17 @@ public class IconSwitch extends ViewGroup {
             thumbColorLeft = ta.getColor(R.styleable.IconSwitch_isw_thumb_color_left, colorDefThumb);
             thumbColorRight = ta.getColor(R.styleable.IconSwitch_isw_thumb_color_right, colorDefThumb);
             currentChecked = Checked.values()[ta.getInt(R.styleable.IconSwitch_isw_default_selection, 0)];
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                leftIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_isw_icon_left));
+                rightIcon.setImageDrawable(ta.getDrawable(R.styleable.IconSwitch_isw_icon_right));
+            } else {
+                final int drawableLeftId = ta.getResourceId(R.styleable.IconSwitch_isw_icon_left, -1);
+                final int drawableRightId = ta.getResourceId(R.styleable.IconSwitch_isw_icon_right, -1);
+                leftIcon.setImageDrawable(AppCompatResources.getDrawable(getContext(), drawableLeftId));
+                rightIcon.setImageDrawable(AppCompatResources.getDrawable(getContext(), drawableRightId));
+            }
+
             ta.recycle();
         } else {
             currentChecked = Checked.LEFT;
