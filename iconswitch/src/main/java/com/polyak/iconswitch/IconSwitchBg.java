@@ -17,7 +17,7 @@ class IconSwitchBg extends Drawable {
     private RectF bounds;
     private Paint paint;
 
-    private float radiusX, radiusY;
+    private float radiusX;
 
     public IconSwitchBg() {
         bounds = new RectF();
@@ -35,13 +35,12 @@ class IconSwitchBg extends Drawable {
                 centerX - halfWidth, centerY - halfHeight,
                 centerX + halfWidth, centerY + halfHeight);
 
-        radiusX = bounds.width() * 0.5f;
-        radiusY = bounds.height();
+        radiusX = bounds.height() * 0.5f;
     }
 
     @Override
     public void draw(@NonNull Canvas canvas) {
-        canvas.drawRoundRect(bounds, radiusX, radiusY, paint);
+        canvas.drawRoundRect(bounds, radiusX, radiusX, paint);
     }
 
     public void setColor(int color) {
