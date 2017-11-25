@@ -336,7 +336,6 @@ class ViewDragHelper {
     public boolean continueSettling(boolean deferCallbacks) {
         if (mDragState == STATE_SETTLING) {
             boolean keepGoing = mScroller.computeScrollOffset();
-            Log.d("tag", "keepGoing: " + keepGoing);
             final int x = mScroller.getCurrX();
             final int y = mScroller.getCurrY();
             final int dx = x - mCapturedView.getLeft();
