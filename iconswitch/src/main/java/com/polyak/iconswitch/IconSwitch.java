@@ -336,6 +336,16 @@ public class IconSwitch extends ViewGroup {
             notifyCheckedChanged();
         }
     }
+    
+    public void setChecked(Checked newChecked, boolean toggleListener) {
+        if (currentChecked != newChecked) {
+            toggleSwitch();
+            
+            if (toggleListener) {
+                notifyCheckedChanged();
+            }
+        }
+    }
 
     public void toggle() {
         toggleSwitch();
