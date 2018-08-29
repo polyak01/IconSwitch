@@ -3,6 +3,7 @@ package com.polyak.iconswitch.sample;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Point;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final Uri URL_GITHUB_POLYAK = Uri.parse("https://github.com/polyak01");
     private static final Uri URL_GITHUB_YAROLEGOVICH = Uri.parse("https://github.com/yarolegovich");
     private static final Uri URL_DRIBBBLE_PROKHODA = Uri.parse("https://dribbble.com/prokhoda");
+    private static final Uri URL_GITHUB_PARMINDER93 = Uri.parse("https://github.com/parminder93");
 
     private int[] toolbarColors;
     private int[] statusBarColors;
@@ -77,6 +79,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         findViewById(R.id.credit_polyak).setOnClickListener(this);
         findViewById(R.id.credit_yarolegovich).setOnClickListener(this);
         findViewById(R.id.credit_prokhoda).setOnClickListener(this);
+        findViewById(R.id.credit_parminder93).setOnClickListener(this);
+
+        ((IconSwitch)findViewById(R.id.ics_enable)).setCheckedChangeListener(new IconSwitch.CheckedChangeListener() {
+            @Override
+            public void onCheckChanged(Checked current) {
+                iconSwitch.setEnabled(current == Checked.LEFT);
+            }
+        });
     }
 
     private void updateColors(boolean animated) {
@@ -158,6 +168,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case R.id.credit_prokhoda:
                 open(URL_DRIBBBLE_PROKHODA);
+                break;
+            case R.id.credit_parminder93:
+                open(URL_GITHUB_PARMINDER93);
                 break;
         }
     }

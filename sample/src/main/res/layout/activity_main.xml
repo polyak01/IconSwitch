@@ -85,7 +85,9 @@
                     android:layout_height="wrap_content"
                     app:mp_icon="@drawable/ic_github_circle_grey600_24dp"
                     app:mp_summary="@string/credit_summary_yarolegovich"
-                    app:mp_title="@string/credit_title_yarolegovich" />
+                    app:mp_title="@string/credit_title_yarolegovich" >
+
+                </com.yarolegovich.mp.MaterialRightIconPreference>
 
                 <com.yarolegovich.mp.MaterialRightIconPreference
                     android:id="@+id/credit_prokhoda"
@@ -93,7 +95,30 @@
                     android:layout_height="wrap_content"
                     app:mp_icon="@drawable/ic_dribbble_grey600_24dp"
                     app:mp_summary="@string/credit_summary_prokhoda"
-                    app:mp_title="@string/credit_title_prokhoda" />
+                    app:mp_title="@string/credit_title_prokhoda" >
+
+                </com.yarolegovich.mp.MaterialRightIconPreference>
+
+                <com.yarolegovich.mp.MaterialRightIconPreference
+                    android:id="@+id/credit_parminder93"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:mp_icon="@drawable/ic_github_circle_grey600_24dp"
+                    app:mp_summary="@string/credit_summary_parminder93"
+                    app:mp_title="@string/credit_title_parminder93" >
+
+                    <com.polyak.iconswitch.IconSwitch
+                        android:id="@+id/ics_enable"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="end|center_vertical"
+                        app:isw_default_selection="left"
+                        app:isw_icon_left="@drawable/ic_enable_white_18dp"
+                        app:isw_icon_right="@drawable/ic_disable_white_18dp"
+                        app:isw_inactive_tint_icon_left="@android:color/holo_green_light"
+                        app:isw_thumb_color_left="@android:color/holo_green_light"
+                        app:isw_thumb_color_right="@color/mapPrimary" />
+                </com.yarolegovich.mp.MaterialRightIconPreference>
 
             </com.yarolegovich.mp.MaterialPreferenceCategory>
 
