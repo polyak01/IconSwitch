@@ -60,7 +60,6 @@ public class IconSwitch extends ViewGroup {
     private int inactiveTintIconLeft, activeTintIconLeft;
     private int inactiveTintIconRight, activeTintIconRight;
     private int thumbColorLeft, thumbColorRight;
-    private int backgroundColor;
 
     private PointF downPoint;
     private boolean isClick;
@@ -211,9 +210,6 @@ public class IconSwitch extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        if(!this.isEnabled())
-            return false;
-
         MotionEvent event = MotionEvent.obtain(e);
         event.setLocation(e.getX() - translationX, e.getY() - translationY);
         switch (event.getAction()) {
@@ -234,27 +230,6 @@ public class IconSwitch extends ViewGroup {
         thumbDragHelper.processTouchEvent(event);
         event.recycle();
         return true;
-    }
-
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-
-        int left = currentChecked == Checked.LEFT ? thumbStartLeft : thumbEndLeft;
-        if (thumbDragHelper.smoothSlideViewTo(thumb, left, thumb.getTop())) {
-            ViewCompat.postInvalidateOnAnimation(this);
-        }
-
-        ensureCorrectColors();
-    }
-
-    @ColorInt
-    private int getDisableColor(@ColorInt int color) {
-        return Color.argb(30, Color.red(color), Color.green(color), Color.blue(color));
-    }
-
-    @ColorInt
-    private int getEnableColor(@ColorInt int color) {
-        return Color.rgb(Color.red(color), Color.green(color), Color.blue(color));
     }
 
     private void onDown(MotionEvent e) {
@@ -340,28 +315,9 @@ public class IconSwitch extends ViewGroup {
     }
 
     private void ensureCorrectColors() {
-        if(isEnabled()) {
-            thumbColorLeft = getEnableColor(thumbColorLeft);
-            thumbColorRight = getEnableColor(thumbColorRight);
-            backgroundColor = getEnableColor(backgroundColor);
-
-            leftIcon.setAlpha(1f);
-            rightIcon.setAlpha(1f);
-        } else {
-            thumbColorLeft = getDisableColor(thumbColorLeft);
-            thumbColorRight = getDisableColor(thumbColorRight);
-            backgroundColor = getDisableColor(backgroundColor);
-
-            leftIcon.setAlpha(0.3f);
-            rightIcon.setAlpha(0.3f);
-        }
-
         leftIcon.setColorFilter(isLeftChecked() ? activeTintIconLeft : inactiveTintIconLeft);
         rightIcon.setColorFilter(isLeftChecked() ? inactiveTintIconRight : activeTintIconRight);
         thumb.setColor(isLeftChecked() ? thumbColorLeft : thumbColorRight);
-        background.setColor(backgroundColor);
-
-
     }
 
     private boolean isLeftChecked() {
@@ -375,17 +331,15 @@ public class IconSwitch extends ViewGroup {
     }
 
     public void setChecked(Checked newChecked) {
-        if (isEnabled() && currentChecked != newChecked) {
+        if (currentChecked != newChecked) {
             toggleSwitch();
             notifyCheckedChanged();
         }
     }
 
     public void toggle() {
-        if(isEnabled()) {
-            toggleSwitch();
-            notifyCheckedChanged();
-        }
+        toggleSwitch();
+        notifyCheckedChanged();
     }
 
     public Checked getChecked() {
@@ -422,9 +376,8 @@ public class IconSwitch extends ViewGroup {
         ensureCorrectColors();
     }
 
-    public void setBackgroundColor(@ColorInt int backgroundColor) {
-        this.backgroundColor = backgroundColor;
-        ensureCorrectColors();
+    public void setBackgroundColor(@ColorInt int color) {
+        background.setColor(color);
     }
 
     public ImageView getLeftIcon() {
