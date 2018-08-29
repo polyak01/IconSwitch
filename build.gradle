@@ -23,6 +23,6 @@ ext {
     groupId = 'com.polyak'
     uploadName = 'IconSwitch'
     description = 'Custom switch-like widget.'
-    publishVersion = '1.0.0'
+    publishVersion = '1.0.1'
     licences = ['Apache-2.0']
 }
