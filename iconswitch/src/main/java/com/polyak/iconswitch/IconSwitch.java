@@ -124,7 +124,7 @@ public class IconSwitch extends ViewGroup {
             activeTintIconLeft = ta.getColor(R.styleable.IconSwitch_isw_active_tint_icon_left, colorDefActive);
             inactiveTintIconRight = ta.getColor(R.styleable.IconSwitch_isw_inactive_tint_icon_right, colorDefInactive);
             activeTintIconRight = ta.getColor(R.styleable.IconSwitch_isw_active_tint_icon_right, colorDefActive);
-            background.setColor(ta.getColor(R.styleable.IconSwitch_isw_background_color, colorDefBackground));
+            backgroundColor = ta.getColor(R.styleable.IconSwitch_isw_background_color, colorDefBackground);
             thumbColorLeft = ta.getColor(R.styleable.IconSwitch_isw_thumb_color_left, colorDefThumb);
             thumbColorRight = ta.getColor(R.styleable.IconSwitch_isw_thumb_color_right, colorDefThumb);
             currentChecked = Checked.values()[ta.getInt(R.styleable.IconSwitch_isw_default_selection, 0)];
