@@ -237,6 +237,9 @@ class ViewDragHelper {
     }
 
     private boolean forceSettleCapturedViewAt(int finalLeft, int finalTop, int xvel, int yvel) {
+        if(mCapturedView == null)
+            return false;
+
         final int startLeft = mCapturedView.getLeft();
         final int startTop = mCapturedView.getTop();
         final int dx = finalLeft - startLeft;
