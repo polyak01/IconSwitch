@@ -228,6 +228,7 @@ public class IconSwitch extends ViewGroup {
                 clearTouchInfo();
                 break;
             case MotionEvent.ACTION_CANCEL:
+                cancelAction();
                 clearTouchInfo();
                 break;
         }
@@ -289,6 +290,12 @@ public class IconSwitch extends ViewGroup {
         if (velocityTracker != null) {
             velocityTracker.recycle();
             velocityTracker = null;
+        }
+    }
+
+    private void cancelAction() {
+        if (thumbDragHelper.smoothSlideViewTo(thumb, currentChecked == Checked.LEFT ?  thumbStartLeft : thumbEndLeft, thumb.getTop())) {
+            ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 
